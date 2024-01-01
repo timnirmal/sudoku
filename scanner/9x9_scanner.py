@@ -3,16 +3,16 @@ import numpy as np
 
 from scanner.cham_utils import reoderPoints, findBiggestContour, preProcessImg, splitImgToBoxes
 
-imgPath = "../sudoku_images/1.jpg"
-imgHeight = 450
-imgWidth = 450
-boxSize = 9
+# imgPath = "../sudoku_images/1.jpg"
+# imgHeight = 450
+# imgWidth = 450
+# boxSize = 9
 
-# # imgPath = "../sudoku_images/2.jpg"
-# imgPath = "../generate_images/skewed_vertical.jpg"
-# imgHeight = 480
-# imgWidth = 480
-# boxSize = 16
+# imgPath = "../sudoku_images/2.jpg"
+imgPath = "../generate_images/skewed_vertical.jpg"
+imgHeight = 480
+imgWidth = 480
+boxSize = 16
 
 # prepare image
 img = cv2.imread(imgPath)
