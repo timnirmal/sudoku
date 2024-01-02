@@ -1,6 +1,8 @@
 import cv2 as cv
 import numpy as np
 
+from digit.ocr import recognize_digit
+
 
 def preProcessImg(img):
     imgGray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)  # Convert to grayscale
@@ -140,10 +142,25 @@ def predictDigits(boxes, model):
     return result
 
 
+# get the prediction of each box
+def predict_digits_tesseract(boxes):
+    result = []
+    for box in boxes:
+        # call recognize_digit(image)
+        digit = recognize_digit(box)
+        print(digit)
+
+        # if digit is not empty
+        if digit != "":
+            result.append(int(digit))
+        else:
+            result.append(0)
+
+    return result
+
+
 # display digits on image
-
-
-def displayDigitsOnImg(img, digits, boxSize = 9, color=(0, 255, 0)):
+def displayDigitsOnImg(img, digits, boxSize=9, color=(0, 255, 0)):
     boxWidth = int(img.shape[1] / boxSize)  # width of each box
     boxHeight = int(img.shape[0] / boxSize)  # height of each box
     for x in range(0, boxSize):
@@ -168,3 +185,20 @@ def drawSudokuGrid(img, boxSize=9):
         cv.line(img, leftPt, rightPt, (255, 255, 0), 2)
         cv.line(img, topPt, bottomPt, (255, 255, 0), 2)
     return img
+
+
+def list_to_file(sudoku_list, boxSize=9):
+    # Convert the list into a 16x16 grid.
+    sudoku_grid = [sudoku_list[i:i + boxSize] for i in range(0, len(sudoku_list), boxSize)]
+
+    # Prepare the string to write to the text file.
+    sudoku_string = '\n'.join(' '.join(str(num) if num != 0 else '0' for num in row) for row in sudoku_grid)
+
+    # Path for the text file.
+    file_path = 'sudoku_puzzle.txt'
+
+    # Write the formatted string to a text file.
+    with open(file_path, 'w') as file:
+        file.write(sudoku_string)
+
+    return file_path

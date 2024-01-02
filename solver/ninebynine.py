@@ -16,7 +16,7 @@ with open(input_path, 'r') as f:
 # for row in sudoku_puzzle:
 #     print(row)
 
-def solve_sudoku(board):
+def solve_sudoku_9x9(board):
     empty_cell = find_empty_cell(board)
 
     if not empty_cell:
@@ -93,7 +93,7 @@ def is_valid_move(board, num, pos):
 if __name__ == '__main__':
     start_time = time.time()
     # Call the solve_sudoku function to solve the puzzle
-    if solve_sudoku(sudoku_puzzle):
+    if solve_sudoku_9x9(sudoku_puzzle):
         # Print the solved Sudoku puzzle
         for row in sudoku_puzzle:
             print(row)

@@ -1,18 +1,38 @@
+from typing import Any
+
 import cv2
 import numpy as np
+from numpy import ndarray, dtype, generic
 
-from scanner.cham_utils import reoderPoints, findBiggestContour, preProcessImg, splitImgToBoxes
+from digit.ocr import recognize_digit
+from scanner.cham_utils import reoderPoints, findBiggestContour, preProcessImg, splitImgToBoxes, displayDigitsOnImg, \
+    drawSudokuGrid, stackImages, predictDigits, predict_digits_tesseract, list_to_file
+
+from solver.ninebynine import solve_sudoku_9x9
+from solver.hexbyhex import solve_sudoku_16x16
 
 # imgPath = "../sudoku_images/1.jpg"
 # imgHeight = 450
 # imgWidth = 450
 # boxSize = 9
 
+# # imgPath = "../sudoku_images/2.jpg"
+# imgPath = "../generate_images/skewed_vertical.jpg"
+# imgHeight = 480
+# imgWidth = 480
+# boxSize = 16
+
 # imgPath = "../sudoku_images/2.jpg"
-imgPath = "../generate_images/skewed_vertical.jpg"
-imgHeight = 480
-imgWidth = 480
+imgPath = "../sudoku_gen/sudoku 16x16.png"
+imgHeight = 800
+imgWidth = 800
 boxSize = 16
+
+# # imgPath = "../sudoku_images/2.jpg"
+# imgPath = "../sudoku_gen/sudoku 9x9.png"
+# imgHeight = 450
+# imgWidth = 450
+# boxSize = 9
 
 # prepare image
 img = cv2.imread(imgPath)
@@ -64,20 +84,51 @@ if biggestContourPoints.size != 0:
     imgSolvedDigits = blankImg.copy()
     boxes = splitImgToBoxes(imgWarpColored, boxSize)
 
-    # show boxes
-    for image in boxes:
-        cv2.imshow("box", image)
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # # show boxes
+    # image: ndarray[Any, dtype[generic | generic | Any]]
+    # for image in boxes:
+    #     if image is not None and image.size != 0:
+    #         cv2.imshow("box", image)
+    #         cv2.waitKey(0)
+    #     else:
+    #         print("Empty or invalid image detected.")
+    # cv2.destroyAllWindows()
 
-    # # print(len(boxes))
-    # # cv.imshow("Sample Box", boxes[0])
-    # print("----predicting digits----")
-    # detectedDigits = predictDigits(boxes, digitsClassModel)
-    # print(detectedDigits)
+    # print(len(boxes))
+    # cv.imshow("Sample Box", boxes[0])
+
+    sudoku_list = predict_digits_tesseract(boxes)
+    print(sudoku_list)
+
+    input_path = list_to_file(sudoku_list, boxSize)
+    input_path = 'sudoku_puzzle.txt'
+    # input_path = '../Sudoku Sample Puzzles/Sample Inputs/input_hex1.txt'
+
+    if boxSize == 9:
+        # Initialize an empty 2D array for the Sudoku puzzle
+        sudoku_puzzle = []
+
+        # Read the text file and convert it into a 2D array
+        with open(input_path, 'r') as f:
+            for line in f:
+                # Split each line into individual values and convert them to integers
+                row = [int(x) for x in line.strip().split()]
+                sudoku_puzzle.append(row)
+
+        if solve_sudoku_9x9(sudoku_puzzle):
+            # Print the solved Sudoku puzzle
+            for row in sudoku_puzzle:
+                print(row)
+        else:
+            print("No solution exists for the given Sudoku puzzle.")
+    elif boxSize == 16:
+        if solve_sudoku_16x16(input_path):
+            print("Sudoku solved!")
+        else:
+            print("No solution exists for the given Sudoku puzzle.")
+
     # imgDetectedDigits = blankImg.copy()
-    # imgDetectedDigits = displayDigitsOnImg(
-    #     imgDetectedDigits, detectedDigits, color=(255, 0, 255))
+    # imgDetectedDigits = displayDigitsOnImg(imgDetectedDigits, detectedDigits, color=(255, 0, 255))
     #
     # detectedDigits = np.array(detectedDigits)
     # posArray = np.where(detectedDigits > 0, 0, 1)
@@ -85,7 +136,7 @@ if biggestContourPoints.size != 0:
     #
     # puzzleLines = [' '.join(map(str, detectedDigits[i:i + 9]))
     #                for i in range(0, len(detectedDigits), 9)]
-    #
+
     # # print(puzzleLines)
     # print("----solving sudoku----")
     # try:
@@ -112,16 +163,14 @@ if biggestContourPoints.size != 0:
     #
     # # overlay solved digits onto original image
     # bigContourPts = np.float32(biggestContourPoints)
-    # puzzleConers = np.float32(
-    #     [[0, 0], [imgWidth, 0], [0, imgHeight], [imgWidth, imgHeight]])
+    # puzzleConers = np.float32([[0, 0], [imgWidth, 0], [0, imgHeight], [imgWidth, imgHeight]])
     # # create perspective transform matrix
-    # transformMatrix = cv.getPerspectiveTransform(puzzleConers, bigContourPts)
+    # transformMatrix = cv2.getPerspectiveTransform(puzzleConers, bigContourPts)
     #
     # imgInvWarpColored = img.copy()
-    # imgInvWarpColored = cv.warpPerspective(
-    #     imgSolvedDigits, transformMatrix, (imgWidth, imgHeight))
+    # imgInvWarpColored = cv2.warpPerspective(imgSolvedDigits, transformMatrix, (imgWidth, imgHeight))
     #
-    # solutionBlendedImg = cv.addWeighted(imgInvWarpColored, 1, img, 0.5, 1)
+    # solutionBlendedImg = cv2.addWeighted(imgInvWarpColored, 1, img, 0.5, 1)
     #
     # imgDetectedDigits = drawSudokuGrid(imgDetectedDigits)
     # imgSolvedDigits = drawSudokuGrid(imgSolvedDigits)
@@ -131,7 +180,7 @@ if biggestContourPoints.size != 0:
     #             [imgBigContours, imgWarpColored, imgDetectedDigits],
     #             [imgSolvedDigits, imgInvWarpColored, solutionBlendedImg])
     # stackedImg = stackImages(imgArray, 0.5)
-    # cv.imshow("Stacked Images", stackedImg)
+    # cv2.imshow("Stacked Images", stackedImg)
 
 else:
     print("No sudoku found")

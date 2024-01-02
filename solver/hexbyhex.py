@@ -133,7 +133,7 @@ def puzzle_is_solved(empty_cells, row_val_sets, col_val_sets, sub_matrix_sets, a
                     empty_cells.insert(0, empty_cell)
                     return True
                 remove_from_available_vals_sets(empty_cell, row_val_sets, col_val_sets, sub_matrix_sets)
-            empty_cell.setValue('0')
+            empty_cell.set_value('0')
         empty_cells.insert(0, empty_cell)
         return False
     else:
@@ -192,7 +192,7 @@ def write_solution_to_file(filepath, puzzle, is_solved):
             file.write('No Solution\n')
 
 
-def solve_sudoku(input_data_path):
+def solve_sudoku_16x16(input_data_path):
     puzzle_matrix, available_vals = load_and_prepare_puzzle(input_data_path)
     row_val_sets, col_val_sets, sub_matrix_sets = create_value_sets(puzzle_matrix)
     empty_cells = create_empty_cells(puzzle_matrix)
@@ -218,10 +218,12 @@ def solve_sudoku(input_data_path):
         is_valid, is_valid_text = sudoku_validator(puzzle_matrix)
         if not is_valid:
             print('Is the puzzle valid?', is_valid_text)
-        write_solution_to_file(input_path, puzzle_matrix, is_solved=True)
+        write_solution_to_file(input_data_path, puzzle_matrix, is_solved=True)
     else:
         print('No solution!')
-        write_solution_to_file(input_path, None, is_solved=False)
+        write_solution_to_file(input_data_path, None, is_solved=False)
+
+    return is_solved
 
 
 def update_sudoku_with_solution(matrix, empty_cells):
@@ -229,6 +231,6 @@ def update_sudoku_with_solution(matrix, empty_cells):
         matrix[cell.row][cell.col] = cell.value
 
 
-if __name__ == "__main__":
-    input_path = "../Sudoku Sample Puzzles/Sample Inputs/input_hex1.txt"
-    solve_sudoku(input_path)
+# if __name__ == "__main__":
+#     input_path = "../Sudoku Sample Puzzles/Sample Inputs/input_hex1.txt"
+#     solve_sudoku_16x16(input_path)

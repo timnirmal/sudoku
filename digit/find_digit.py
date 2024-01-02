@@ -40,7 +40,7 @@ def segment_digits(img):
     digit_images = []
     for contour in contours:
         # Consider contour area to filter out non-digit contours
-        if cv2.contourArea(contour) > 50:  # Adjust this threshold as needed
+        if cv2.contourArea(contour) > 50:  # Adjust this t hreshold as needed
             x, y, w, h = cv2.boundingRect(contour)
             digit_img = img[y:y+h, x:x+w]
             digit_img = cv2.resize(digit_img, (28, 28), interpolation=cv2.INTER_AREA)
